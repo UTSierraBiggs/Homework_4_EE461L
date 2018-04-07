@@ -1,0 +1,7 @@
+
+<resources>
+<string name="app_name">EE461LAndroidApp</string>
+<string name="edit_message">Enter a location</string>
+<string name="button_send">Find</string>
+    <string name="title_activity_display_message">My Message</string>
+</resources>
