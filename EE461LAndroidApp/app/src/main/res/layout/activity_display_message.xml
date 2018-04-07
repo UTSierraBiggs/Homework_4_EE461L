@@ -14,6 +14,16 @@
         tools:context="com.hw4.vskun.ee461landroidapp.DisplayMap"
         android:name="com.google.android.gms.maps.SupportMapFragment" />
 
+    <ToggleButton
+        android:id="@+id/togglebutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onToggleClicked"
+        android:textOff="Sat View"
+        android:textOn="Reg View"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="463dp" />
+
 </android.support.constraint.ConstraintLayout>
 
 

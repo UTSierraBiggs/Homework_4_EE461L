@@ -15,8 +15,10 @@ import android.os.Bundle;
 import com.google.android.gms.maps.CameraUpdateFactory;
 
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import android.location.Geocoder;
+import android.widget.ToggleButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,10 +65,12 @@ public class DisplayMap extends FragmentActivity implements OnMapReadyCallback {
             }
         }
 
-
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
+
 
         AsyncTask<String,String,String> myTask = new AsyncTask<String,String,String>() {
             ProgressDialog d = new ProgressDialog(DisplayMap.this);
@@ -79,14 +83,15 @@ public class DisplayMap extends FragmentActivity implements OnMapReadyCallback {
             @Override
             protected String doInBackground(String... strings) {
 
-                //String faddr = getaddr();
+                String faddr = getaddr();
+                addr = faddr;
                 URL placeUrl;
                 HttpURLConnection connection = null;
 
                 String response = "here";
                 try {
-                    //placeUrl = new URL("https://maps.googleapis.com/maps/api/geocode/json?address="+ addr + "&key=AIzaSyBpUGDroKoP48EXodcsbbJRq2Z0QJZKA5k");
-                    placeUrl = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=AIzaSyBpUGDroKoP48EXodcsbbJRq2Z0QJZKA5k");
+                    placeUrl = new URL("https://maps.googleapis.com/maps/api/geocode/json?address="+ faddr + "&key=AIzaSyBpUGDroKoP48EXodcsbbJRq2Z0QJZKA5k");
+                    //placeUrl = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=AIzaSyBpUGDroKoP48EXodcsbbJRq2Z0QJZKA5k");
                     //placeUrl = new URL("https://maps.googleapis.com/maps/api/place/autocomplete/json?input=" + addr +"&language=pt_BR&key=AIzaSyBpUGDroKoP48EXodcsbbJRq2Z0QJZKA5k");
                     connection = (HttpURLConnection) placeUrl.openConnection();
                     connection.setRequestMethod("GET");
@@ -148,6 +153,11 @@ public class DisplayMap extends FragmentActivity implements OnMapReadyCallback {
             myTask.execute();
 
 
+
+        while(res.size() == 0){
+
+        }
+
     }
 
     @Override
@@ -157,12 +167,84 @@ public class DisplayMap extends FragmentActivity implements OnMapReadyCallback {
 
         // Add a marker in Sydney, Australia, and move the camera.
 
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 10));
+        mMap.addMarker(new MarkerOptions().position(sydney).title(addr));
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15));
 
     }
 
+    public void onToggleClicked(View view) {
+        // Is the toggle on?
+        boolean on = ((ToggleButton) view).isChecked();
 
+        if (on) {
+            mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            // Enable vibrate
+        } else {
+            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            // Disable vibrate
+        }
+    }
+
+public String getaddr(){
+    URL placeUrl;
+    HttpURLConnection connection = null;
+        String response = "here";
+        try {
+           // placeUrl = new URL("https://maps.googleapis.com/maps/api/geocode/json?address="+ addr + "&key=AIzaSyBpUGDroKoP48EXodcsbbJRq2Z0QJZKA5k");
+            //placeUrl = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=AIzaSyBpUGDroKoP48EXodcsbbJRq2Z0QJZKA5k");
+            placeUrl = new URL("https://maps.googleapis.com/maps/api/place/autocomplete/json?input=" + addr +"&language=pt_BR&key=AIzaSyBpUGDroKoP48EXodcsbbJRq2Z0QJZKA5k");
+            connection = (HttpURLConnection) placeUrl.openConnection();
+            connection.setRequestMethod("GET");
+
+
+            int responseCode = connection.getResponseCode();
+            response = Integer.toString(responseCode);
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+
+                BufferedReader reader = null;
+
+                InputStream inputStream = connection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
+
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+
+                    buffer.append(line + "\n");
+                }
+
+                if (buffer.length() == 0) {
+
+                }
+                response = buffer.toString();
+
+            } else {
+                System.out.print(Integer.toString(responseCode));
+            }
+            Log.d("response", "here");
+
+
+
+        } catch (Exception e) {
+            response = (e).toString();
+
+        }
+        String addr = "";
+        try{
+            JSONObject j = new JSONObject(response);
+            addr = ((JSONArray)j.get("predictions")).getJSONObject(0).get("description").toString();
+        }
+        catch (JSONException e){
+
+        }
+
+        return addr;
+    }
 
 }
 
